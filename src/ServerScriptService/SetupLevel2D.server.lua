@@ -76,26 +76,24 @@ local function buildMap(gridData)
         coin.Material = Enum.Material.Neon
         coin.Parent = folder
         
-        local script = Instance.new("Script")
-        script.Source = [[
-            local coin = script.Parent
-            local TweenService = game:GetService("TweenService")
-            game:GetService("RunService").Heartbeat:Connect(function(dt)
-                coin.CFrame = coin.CFrame * CFrame.Angles(dt * 3, 0, 0)
-            end)
-            local db = false
-            coin.Touched:Connect(function(hit)
-                if db then return end
-                if hit.Parent:FindFirstChildOfClass("Humanoid") then
-                    db = true
-                    local tween = TweenService:Create(coin, TweenInfo.new(0.3), {Size = Vector3.new(0,0,0), Transparency = 1})
-                    tween:Play()
-                    tween.Completed:Wait()
-                    coin:Destroy()
-                end
-            end)
-        ]]
-        script.Parent = coin
+        -- Obracanie monety na serwerze za pomocą TweenService (lepsze niż pętla)
+        local TweenService = game:GetService("TweenService")
+        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
+        local spinTween = TweenService:Create(coin, tweenInfo, {Orientation = Vector3.new(360, 0, 90)})
+        spinTween:Play()
+
+        local db = false
+        coin.Touched:Connect(function(hit)
+            if db then return end
+            if hit.Parent:FindFirstChildOfClass("Humanoid") then
+                db = true
+                -- Prosty efekt zebrania
+                local shrink = TweenService:Create(coin, TweenInfo.new(0.2), {Size = Vector3.new(0,0,0)})
+                shrink:Play()
+                shrink.Completed:Wait()
+                coin:Destroy()
+            end
+        end)
     end
 
     local function createFire(x, y)
@@ -104,22 +102,17 @@ local function buildMap(gridData)
         fireParticles.Size = 4
         fireParticles.Parent = fireBlock
         
-        local script = Instance.new("Script")
-        script.Source = [[
-            local fire = script.Parent
-            local db = false
-            fire.Touched:Connect(function(hit)
-                if db then return end
-                local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    db = true
-                    humanoid:TakeDamage(100)
-                    task.wait(1)
-                    db = false
-                end
-            end)
-        ]]
-        script.Parent = fireBlock
+        local db = false
+        fireBlock.Touched:Connect(function(hit)
+            if db then return end
+            local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                db = true
+                humanoid:TakeDamage(100)
+                task.wait(1)
+                db = false
+            end
+        end)
     end
 
     local function createSpawn(x, y)
