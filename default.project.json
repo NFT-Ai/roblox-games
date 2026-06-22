@@ -24,6 +24,10 @@
         "$path": "src/StarterCharacterScripts"
       }
     },
+    
+    "StarterGui": {
+      "$path": "src/StarterGui"
+    },
 
     "Workspace": {
       "$className": "Workspace",
