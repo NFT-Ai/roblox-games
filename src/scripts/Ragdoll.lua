@@ -86,7 +86,10 @@ function Ragdoll.Enable(model: Model)
 			local noCol = Instance.new("NoCollisionConstraint")
 			noCol.Name = "RagdollNoCol_" .. motor.Name
 			noCol.Part0 = motor.Part0
-			noCol.Part1 = objVal.Value :: BasePart
+			local targetPart = objVal.Value
+			if targetPart and targetPart:IsA("BasePart") then
+			    noCol.Part1 = targetPart
+			end
 			noCol.Parent = motor.Part0
 			table.insert(createdConstraints, noCol)
 		end

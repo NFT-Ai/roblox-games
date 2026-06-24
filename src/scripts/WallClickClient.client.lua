@@ -61,7 +61,8 @@ local function fireBullet()
         if hitProcessed then return end
         
         local model = hit:FindFirstAncestorOfClass("Model")
-        local npcFolder = workspace:FindFirstChild("NPCs") if model and npcFolder and model:IsDescendantOf(npcFolder) then
+        local npcFolder = workspace:FindFirstChild("NPCs") 
+        if model and npcFolder and model:IsDescendantOf(npcFolder) then
             hitProcessed = true
             local velocity = bullet.AssemblyLinearVelocity
             local direction = velocity.Magnitude > 0 and velocity.Unit or dir

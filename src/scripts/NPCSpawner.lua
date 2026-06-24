@@ -38,9 +38,8 @@ export type NPC = {
 function NPCSpawner.Spawn(spawnCFrame: CFrame, owner: Player?): NPC?
 	local model = TEMPLATE:Clone()
 	model.Name = "Bot"
-	local hum = model:FindFirstChildOfClass("Humanoid")
-	if hum then hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
 	local root = model:FindFirstChild("HumanoidRootPart") :: BasePart?
 	
 	if not humanoid or not root then

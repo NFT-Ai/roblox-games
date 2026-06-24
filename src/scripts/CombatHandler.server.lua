@@ -6,18 +6,20 @@ local Players = game:GetService("Players")
 
 -- Najpierw tworzymy autentyczny model R15 (to wymusi pobranie siatek z sieci)
 if not ServerStorage:FindFirstChild("NPC_Template") then
-    local success, desc = pcall(function()
-        return Players:GetHumanoidDescriptionFromUserId(156) -- Builderman (ładny darmowy avatar R15)
+    task.spawn(function()
+        local success, desc = pcall(function()
+            return Players:GetHumanoidDescriptionFromUserId(156) -- Builderman (ładny darmowy avatar R15)
+        end)
+        
+        if not success or not desc then
+            desc = Instance.new("HumanoidDescription")
+        end
+        
+        local tempNPC = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
+        tempNPC.Name = "NPC_Template"
+        if tempNPC:FindFirstChild("Animate") then tempNPC.Animate:Destroy() end
+        tempNPC.Parent = ServerStorage
     end)
-    
-    if not success or not desc then
-        desc = Instance.new("HumanoidDescription")
-    end
-    
-    local tempNPC = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
-    tempNPC.Name = "NPC_Template"
-    if tempNPC:FindFirstChild("Animate") then tempNPC.Animate:Destroy() end
-    tempNPC.Parent = ServerStorage
 end
 
 -- Ładowanie modułów
