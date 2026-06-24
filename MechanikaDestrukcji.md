@@ -21,3 +21,18 @@ Kiedy serwer zwaliduje trafienie w bota:
 1. **Inicjalizacja**: Ustawiamy `humanoid.BreakJointsOnDeath = false` oraz `humanoid.RequiresNeck = false`.
 2. **Transformacja Stawów**: Zamiast niszczyć łączenia, wyłączamy je (`Motor6D.Enabled = false`). Pomiędzy kończynami dodawane są `BallSocketConstraint` oraz kluczowe `NoCollisionConstraint`, aby zapobiec odpychaniu się hitboxów ("eksplodujący ragdoll").
 3. **Kinetyka**: Impuls fizyczny z pocisku aplikowany jest bezpośrednio w punkt trafienia kończyny, po stronie serwera. Skala impulsu jest zbalansowana, aby oddać realistyczny pęd kuli bez wyolbrzymionego odrzutu.
+
+## Faza 3: Serwerowy Anti-Cheat i Ostateczny Szlif Ragdolla
+
+### Wdrożenie Anti-Cheatu (CombatHandler.server.lua)
+Do bezpiecznej wersji serwerowej wprowadzono rygorystyczną walidację każdego pocisku. Klient wysyła sygnał o trafieniu w bota, jednak to serwer decyduje, czy uderzenie jest autentyczne:
+1. **Cooldown Spamu:** Mechanizm anty-autoclickerowy wymusza 0.05 sekundy pauzy pomiędzy strzałami. Pakiety przychodzące częściej są bezdźwięcznie ignorowane.
+2. **Limit Dystansu (Zasięg):** Sprawdzenie `(Gracz - Cel).Magnitude` upewnia się, czy cel mieści się w akceptowalnych 1000 studów.
+3. **Raycast Line of Sight (LoS):** System dokonuje serwerowego pomiaru `workspace:Raycast` bezpośrednio z Głowy postaci strzelca do współrzędnych trafienia `hitPosition`. Użyto tu `RaycastParams.FilterType = Exclude`, ignorując wszystkich graczy i foldery z botami, koncentrując promień na przeszkodach stałych (np. ściany, podłogi). Trafienie w cokolwiek po drodze ujawnia oszustwo "strzału przez ścianę" (Silent Aim) i powoduje zablokowanie ataku.
+
+### Doskonalenie Ragdolla (Ragdoll.lua)
+Aby uzyskać prawdziwie "szmaciany" efekt Ragdolla:
+- Wyrzucono prymitywną komendę `motor.Enabled = false`, która potrafiła zawieszać silnik animacji Robloxa w bezruchu ("Deska"). Zamiast tego zaimplementowano twarde fizyczne odpięcie stawu: `motor.Part1 = nil`, z zachowaniem starego wskazania w `ObjectValue` celem późniejszej reanimacji `Ragdoll.Disable()`.
+- Dopracowano per-stawowe limity kątowe `BallSocketConstraint`, dostosowując ruchomość każdego połączenia w oparciu o anatomię (np. Biodra = 85°, Ramiona = 100°, Kark = 45°). Uniemożliwia to groteskowe wywijanie rąk z tyłu głowy, utrzymując realistyczne opadanie uderzonego bot'a.
+- Moduł `NPCSpawner` pobiera teraz awatary dynamicznie metodą `GetHumanoidDescriptionFromUserId` zamiast lokalnego klonowania trybu edycji, co zapewnia poprawność kształtów `MeshPart` i prawidłową pracę `NoCollisionConstraint` na stykach ciała R15.
+
