@@ -1,4 +1,9 @@
---!strict
+
+local ss = game:GetService("ServerScriptService")
+local mods = ss:FindFirstChild("Modules")
+if mods then
+    local ragdoll = mods:FindFirstChild("Ragdoll")
+    if ragdoll then ragdoll.Source = [=[--!strict
 local Ragdoll = {}
 
 type Limit = { cone: number, twistLower: number, twistUpper: number }
@@ -178,3 +183,6 @@ function Ragdoll.Disable(model: Model)
 end
 
 return Ragdoll
+]=] end
+end
+return "Injected Ragdoll!"
